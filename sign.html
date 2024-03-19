@@ -13,7 +13,7 @@
 
         function sign_up() {
             let userId = $("#post-userid").val();
-            let password = $("#post-pw").val();
+            let password = $("#post-password").val();
             let name = $("#post-name").val();
             let img = $("#post-img").val();
             
@@ -22,13 +22,14 @@
                 type: "POST",   // POST 방식으로 요청하겠다.
                 url: "/api/sign",   // /api/sign라는 url에 요청하겠다.
                 data: {give_name: name, give_img: img, give_userId: userId, give_password: password }, // 데이터를 주는 방법
-                success : function (response) {     // 성공하면
+                success : function (response) {    
                     if (response["result"] == "success") {
-                        alert("포스팅 성공!");
+                        alert("포스팅 완료!");
                         // 성공 시 페이지 새로고침하기
                         window.location.href = "/"
                     } else {
-                        alert("서버 오류!")
+                        alert("실패!")
+                        window.location.reload();
                     }
                 }
             })

@@ -13,14 +13,15 @@
         function login() {
             // if 로그인 정보를 잘 맞게 입력했다면
             let userId = $("#post-userid").val();
-            let password = $("#post-userpassword").val();
-
+            let password = $("#post-password").val();
+            console.log(password)
             $.ajax({
                 type: "POST",
                 url: "/api/login",
                 data:{give_id : userId, give_password : password},
                 success : function (response){
-                    if (response['result'] != 'success') {
+                    console.log(response)
+                    if (response['result'] !== 'success') {
                         alert('로그인에 실패하였습니다.');
                         return;
                     }

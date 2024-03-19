@@ -53,6 +53,9 @@ def sign_up():
     name_receive = request.form.get('give_name')
     img_receive = request.form.get('give_img')
     id_receive = request.form.get('give_userId')
+    registered_id = db.users.find_one({'id' : id_receive })
+    if registered_id:
+        return jsonify({'result': 'failure'})
     password_receive = request.form.get('give_password')
 
     doc = { 'name' : name_receive, 'img' : img_receive, 'id' : id_receive, 'password' : password_receive}
@@ -72,7 +75,7 @@ def login():
         return jsonify({'result' : 'success'})
     else:
         return jsonify({'result': 'failure'})
-
+ 
 if __name__ == '__main__':
     print(sys.executable)
     app.run('0.0.0.0', port=5000, debug=True)
