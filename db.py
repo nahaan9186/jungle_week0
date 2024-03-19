@@ -42,32 +42,36 @@ app.json = CustomJSONProvider(app)
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('login.html')
 
-@app.route('/api/sign', methods = ['POST'])
+@app.route('/sign.html')
+def sign_page():
+    return render_template('sign.html')
+
+@app.route('/api/sign', methods = ['GET','POST'])
 def sign_up():
-    # 클라이언트로부터 데이터를 받기
-    name_receive = request.form('give_name')
-    # img_receive = request.form('give_img')
-    id_receive = request.form('give_userid')    # 클라이언트로부터 userid를 받는 부분
-    password_receive = request.form('give_password')    # 클라이언트로부터 password를 받는 부분
+    name_receive = request.form.get('give_name')
+    img_receive = request.form.get('give_img')
+    id_receive = request.form.get('give_userId')
+    password_receive = request.form.get('give_password')
 
-    doc = { 'name' : name_receive, 'id' : id_receive, 'password' : password_receive}
+    doc = { 'name' : name_receive, 'img' : img_receive, 'id' : id_receive, 'password' : password_receive}
 
     db.users.insert_one(doc)
 
     return jsonify({'result' : 'success'})
 
-# @app.route('/api/login', methods = ['POST'])
-# def login():
-#     login_id = request.form('give_id')
-#     login_password = request.form('give_password')
-#     registered_id = db.users.find_one({'id' : login_id })
-#     if not registered_id:
-#         return jsonify({'result': 'failure'})
-#     if registered_id:
-#         correct_password = db.users
-#         if
+@app.route('/api/login', methods = ['GET','POST'])
+def login():
+    login_id = request.form.get('give_id')
+    login_password = request.form.get('give_password')
+    registered_user = db.users.find_one({'id' : login_id })
+    if not registered_user:
+        return jsonify({'result': 'failure'})
+    if registered_user['password'] == login_password:
+        return jsonify({'result' : 'success'})
+    else:
+        return jsonify({'result': 'failure'})
 
 if __name__ == '__main__':
     print(sys.executable)
