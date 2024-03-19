@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+        function login() {
+            // if 로그인 정보를 잘 맞게 입력했다면
+            $.ajax({
+                type: "POST",
+                url: "/api/login"
+            })
+        }
+
+        function sign_up() {
+            // if 회원가입을 잘 했다면
+            $.ajax({
+                type: "POST",
+                url: "/api/sign",
+                data: {give_name : name, give_img : img, give_id : id, give_password : password },
+                success : function (response) {
+                    login()
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
