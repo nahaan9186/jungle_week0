@@ -75,6 +75,10 @@ def sign_page():
     title = '회원가입 페이지'
     return render_template('sign.html', title=title)
 
+@app.route('/ranking.html')
+def rank_page():
+    return render_template('ranking.html')
+
 @app.route('/api/sign', methods = ['GET','POST'])
 def sign_up():
     name_receive = request.form.get('give_name')
@@ -124,6 +128,11 @@ def login():
 def addProblem():
     mateList = list(db.users.find({}))
     return jsonify({'result' : 'success', 'mateList' : mateList})
+
+@app.route('/api/ranking')
+def show_score():
+    score = list(db.users.find({}))
+    return jsonify({'result' : 'success', 'score_list' : score})
  
 if __name__ == '__main__':
     print(sys.executable)
