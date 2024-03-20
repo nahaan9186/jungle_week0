@@ -31,9 +31,16 @@
 
     <script>
         let mateList;
-
+        let tenMateList = [];
+        let count = 0;
         $(document).ready(function () {
             addProblems();  // 게임 페이지 시작
+            $("#answer").focus(); // 정답 입력란에 포커스 설정
+            $("#answer").keypress(function(event) { // 엔터키 눌렀을 때 제출
+                if (event.which === 13) { // 13은 엔터키의 키코드
+                    submitAnswer();
+                }
+            });
         });
 
         function addProblems() {
@@ -44,19 +51,27 @@
                 success: function (response) {
                     if (response['result'] == 'success') {
                         mateList = response['mateList']; // DB에서 전체 리스트를 받아온다
-                        let randomIndexes = generateRandomIndexes(10, mateList.length); // 전체 리스트의 수 중 10개의 숫자를 임의로 정한다
-                        for (let i = 0; i < randomIndexes.length; i++) { 
-                            let index = randomIndexes[i]; // 위에서의 임의의 숫자를 index에 하나씩 저장하고
-                            $('#problem-box').append('<img src="' + mateList[index]['img'] + '" alt="" class="problem-img">'); // problem-box에 mateList의 랜덤한 인덱스의 이미지 파일을 올린다.
+                        let randomInt = generateRandomIndexes(10, mateList.length);
+                        
+                        console.log(mateList);
+                        console.log(randomInt);
+                        for (let i of randomInt){
+                            tenMateList.push(mateList[i]);
+                        }
+                        console.log(tenMateList);
+                        for (let i = 0; i < tenMateList.length; i++){
+                            $('#problem-box').append('<img src="' + tenMateList[i]['img'] + '" alt="" class="problem-img">'); // problem-box에 mateList의 랜덤한 인덱스의 이미지 파일을 올린다.
                             $('#problem-indicators').append('<div class="indicator-circle"></div>'); // 그만큼 problem-indicators에 문제 표시기도 올린다.
                         }// 10개의 이미지가 problem-box에 올라가 있지만 CSS부분에서 우선은 problem-img의 display를 none 처리로 안보이게한다
                         
                         $(".problem-img").eq(0).addClass("selected"); // 이후 problem-img의 인덱스 0 부터 seleced 클래스를 추가하면서
-                        $(".indicator-circle").eq(0).addClass("selected"); // 위의 CSS selected 의 display를 block으로 바꿔 화면에 뜨게한다.
+                        $(".indicator-circle").eq(0).addClass("selected"); // 위의 CSS selected 의 display를 block으로 바꿔 화면에 뜨게한다.                            
+                        }
                     }
-                }
-            });
-        }
+                })
+            }
+        
+
 
         // n개의 랜덤한 인덱스 생성 함수
         function generateRandomIndexes(n, max) {
@@ -69,52 +84,41 @@
             }
             return indexes;
         }
-
-        // 정답 제출 함수
+    //문제 맞추기 함수
         function submitAnswer() {
             let answer = $("#answer").val().trim(); // 입력값 공백 제거
-            let selectedImages = $(".problem-img.selected"); // 선택된 이미지 요소
-            let imgList = $(".problem-img"); // 모든 이미지 요소
-            
-            // 선택된 이미지가 없는 경우 처리
-            if (selectedImages.length === 0) {
-                console.error("No selected image found.");
-                return;
+            let selectedImage = $(".problem-img.selected"); // 선택된 이미지 요소
+            let currentProblemIndex = selectedImage.index();
+            let correctAnswer = tenMateList[currentProblemIndex]['name'];
+            let imgList = $(".problem-img");
+
+            console.log(answer)
+            console.log(selectedImage)
+            console.log(currentProblemIndex)
+            console.log(correctAnswer)
+            console.log(imgList)
+
+            if (answer.toLowerCase() === correctAnswer.toLowerCase()){
+                alert("정답!");
+                count +=1
             }
-            let currentProblemIndex = selectedImages.data('index');
-            console.log(currentProblemIndex);
-            // let currentProblemIndex = $(".problem-img.selected").index(); // **mateList 에서의 현재 선택된 이미지의 인덱스
-
-            // currentProblemIndex가 올바른 범위에 있는지 확인
-            if (currentProblemIndex < 0 || currentProblemIndex >= mateList.length) {
-                console.error("currentProblemIndex is out of range.");
-                return;
-            }
-            
-            let correctAnswer = mateList[currentProblemIndex]['name']; // 현재 문제의 정답
-
-            console.log("currentProblemIndex:", currentProblemIndex);
-            console.log("correctAnswer:", correctAnswer);
-
-            if (answer.toLowerCase() === correctAnswer.toLowerCase()) { //사용자가 입력한 답과 진짜 답을 둘다 소문자로 바꿔서 두개가 같은지 비교한다 
-                alert("정답입니다!");
-            } else {
-                alert("틀렸습니다. 다시 시도하세요." + correctAnswer);
+            else{
+                alert("오답!");
             }
             // 입력값 초기화
             $("#answer").val("");
-            // 다음 문제로 이동
-            imgList.removeClass("selected");
+            $(".problem-img").removeClass("selected");
             $(".indicator-circle").removeClass("selected");
             if (currentProblemIndex < imgList.length - 1) {
                 $(imgList[currentProblemIndex + 1]).addClass("selected");
                 $(".indicator-circle").eq(currentProblemIndex + 1).addClass("selected");
             }
             else{
-                alert('끝');
+                alert('당신의 점수는!' + count);
+
             }
         }
-    </script>
+        </script>
 
 
 </head>
