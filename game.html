@@ -33,6 +33,8 @@
         let mateList;
         let tenMateList = [];
         let count = 0;
+        let currentProblemIndex = 0; // 현재 문제의 인덱스
+
         $(document).ready(function () {
             addProblems();  // 게임 페이지 시작
             $("#answer").focus(); // 정답 입력란에 포커스 설정
@@ -52,28 +54,24 @@
                     if (response['result'] == 'success') {
                         mateList = response['mateList']; // DB에서 전체 리스트를 받아온다
                         let randomInt = generateRandomIndexes(10, mateList.length);
-                        
-                        console.log(mateList);
-                        console.log(randomInt);
+
                         for (let i of randomInt){
                             tenMateList.push(mateList[i]);
                         }
-                        console.log(tenMateList);
+
+                        // 문제 이미지와 표시기 추가
                         for (let i = 0; i < tenMateList.length; i++){
-                            $('#problem-box').append('<img src="' + tenMateList[i]['img'] + '" alt="" class="problem-img">'); // problem-box에 mateList의 랜덤한 인덱스의 이미지 파일을 올린다.
-                            $('#problem-indicators').append('<div class="indicator-circle"></div>'); // 그만큼 problem-indicators에 문제 표시기도 올린다.
-                        }// 10개의 이미지가 problem-box에 올라가 있지만 CSS부분에서 우선은 problem-img의 display를 none 처리로 안보이게한다
-                        
-                        $(".problem-img").eq(0).addClass("selected"); // 이후 problem-img의 인덱스 0 부터 seleced 클래스를 추가하면서
-                        $(".indicator-circle").eq(0).addClass("selected"); // 위의 CSS selected 의 display를 block으로 바꿔 화면에 뜨게한다.                            
+                            $('#problem-box').append('<img src="' + tenMateList[i]['img'] + '" alt="" class="problem-img">');
+                            $('#problem-indicators').append('<div class="indicator-circle"></div>');
                         }
+                        
+                        $(".problem-img").eq(0).addClass("selected"); 
+                        $(".indicator-circle").eq(0).addClass("selected"); 
                     }
-                })
-            }
-        
+                }
+            });
+        }
 
-
-        // n개의 랜덤한 인덱스 생성 함수
         function generateRandomIndexes(n, max) {
             let indexes = [];
             while (indexes.length < n) {
@@ -84,43 +82,46 @@
             }
             return indexes;
         }
-    //문제 맞추기 함수
+
         function submitAnswer() {
             let answer = $("#answer").val().trim(); // 입력값 공백 제거
-            let selectedImage = $(".problem-img.selected"); // 선택된 이미지 요소
-            let currentProblemIndex = selectedImage.index();
             let correctAnswer = tenMateList[currentProblemIndex]['name'];
-            let imgList = $(".problem-img");
 
-            console.log(answer)
-            console.log(selectedImage)
-            console.log(currentProblemIndex)
-            console.log(correctAnswer)
-            console.log(imgList)
+            if (answer.toLowerCase() === correctAnswer.toLowerCase()) {
+                count += 1;
+                $("#feedback").text("정답입니다!");
+            } else {
+                $("#feedback").text("오답입니다!");
+            }
 
-            if (answer.toLowerCase() === correctAnswer.toLowerCase()){
-                alert("정답!");
-                count +=1
-            }
-            else{
-                alert("오답!");
-            }
-            // 입력값 초기화
-            $("#answer").val("");
-            $(".problem-img").removeClass("selected");
-            $(".indicator-circle").removeClass("selected");
-            if (currentProblemIndex < imgList.length - 1) {
-                $(imgList[currentProblemIndex + 1]).addClass("selected");
-                $(".indicator-circle").eq(currentProblemIndex + 1).addClass("selected");
-            }
-            else{
-                alert('당신의 점수는!' + count);
-
+            currentProblemIndex++;
+            if (currentProblemIndex < tenMateList.length) {
+                // 다음 문제로 이동
+                $(".problem-img").removeClass("selected");
+                $(".indicator-circle").removeClass("selected");
+                $(".problem-img").eq(currentProblemIndex).addClass("selected");
+                $(".indicator-circle").eq(currentProblemIndex).addClass("selected");
+                $("#answer").val("").focus(); // 정답 입력란 초기화 및 포커스 설정
+            } else {
+                // 모든 문제를 다 푼 경우 게임 종료
+                $("#answer").prop('disabled', true); // 정답 입력란 비활성화
+                $("#feedback").text("게임 종료! 당신의 점수는 " + count + "점 입니다.");
+                $("#restart").show(); // 게임 재시작 버튼 표시
             }
         }
-        </script>
 
-
+        function restartGame() {
+            tenMateList = []; // 게임을 재시작하기 위해 변수 초기화
+            count = 0;
+            currentProblemIndex = 0;
+            $("#problem-box").empty(); // 문제 이미지 및 표시기 제거
+            $("#problem-indicators").empty();
+            $("#feedback").text(""); // 피드백 메시지 초기화
+            $("#answer").prop('disabled', false).val("").focus(); // 정답 입력란 초기화 및 활성화
+            $("#restart").hide(); // 게임 재시작 버튼 숨김
+            addProblems(); // 문제 다시 추가
+        }
+    </script>
 </head>
 <body>
     <div>
@@ -131,7 +132,9 @@
             <label for="answer">정답 : </label>
             <input type="text" id="answer">
             <button onclick="submitAnswer()">제출</button>
+            <div id="feedback"></div> <!-- 정답 피드백 표시 -->
         </div>
+        <button id="restart" onclick="restartGame()" style="display:none;">게임 재시작</button>
     </div>
 </body>
 </html>
