@@ -14,20 +14,20 @@
             // if 로그인 정보를 잘 맞게 입력했다면
             let userId = $("#post-userid").val();
             let password = $("#post-password").val();
-            console.log(password)
+
             $.ajax({
                 type: "POST",
                 url: "/api/login",
                 data:{give_id : userId, give_password : password},
                 success : function (response){
-                    console.log(response)
-                    if (response['result'] !== 'success') {
-                        alert('로그인에 실패하였습니다.');
+                    if (response['result'] != 'success') {
+                        alert('ID와 PW를 확인해주십시오.');
+                        window.location.reload()
                         return;
                     }
                     else{
                         alert('로그인 성공!')
-                        window.location.reload();
+                        window.location.href = "/gameStart.html";
                     }
                 }
             })
@@ -36,6 +36,7 @@
         function goToSign(){
 
             // 로그인 창에서 회원가입 창으로 이동합니다.
+            alert("회원가입 페이지로 이동합니다.")
             window.location.href = "/sign.html";
         }
     </script>
