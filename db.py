@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from bson import ObjectId
 from pymongo import MongoClient
 
@@ -6,7 +7,6 @@ from flask.json.provider import JSONProvider
 
 import json
 import sys
-import random
 
 
 app = Flask(__name__)
@@ -45,32 +45,34 @@ app.json = CustomJSONProvider(app)
 def home():
     return render_template('login.html')
 
-@app.route('/sign.html')
+@app.route('/login')
+def login_page():
+    return render_template('login.html')
+
+@app.route('/sign')
 def sign_page():
     return render_template('sign.html')
-
-@app.route('/gameStart.html')
-def gamestrat_page():
-    return render_template('gameStart.html')
-
-@app.route('/game.html')
-def game_page():
-    return render_template('game.html')
-
 
 @app.route('/api/sign', methods = ['GET','POST'])
 def sign_up():
     name_receive = request.form.get('give_name')
     img_receive = request.form.get('give_img')
     id_receive = request.form.get('give_userId')
-    registered_id = db.users.find_one({'id' : id_receive })
-    if registered_id:
-        return jsonify({'result': 'failure'})
     password_receive = request.form.get('give_password')
+    
+    #미기입 항목 확인
+    if (name_receive == '') or (img_receive == '') or (id_receive == '') or (password_receive == ''):
+        return jsonify({'result': 'itemMissing'})
+    
+    #중복된 ID 확인
+    registered_id = db.users.find_one({'_id' : id_receive })
+    if registered_id:
+        return jsonify({'result': 'duplication'})
 
-    doc = { 'name' : name_receive, 'img' : img_receive, 'id' : id_receive, 'password' : password_receive}
+    doc = { '_id' : id_receive, 'password' : password_receive, 'name' : name_receive, 'img' : img_receive, 'score' : 0}
 
     db.users.insert_one(doc)
+
 
     return jsonify({'result' : 'success'})
 
@@ -78,21 +80,14 @@ def sign_up():
 def login():
     login_id = request.form.get('give_id')
     login_password = request.form.get('give_password')
-    registered_user = db.users.find_one({'id' : login_id })
+    registered_user = db.users.find_one({'_id' : login_id })
     if not registered_user:
         return jsonify({'result': 'failure'})
     if registered_user['password'] == login_password:
         return jsonify({'result' : 'success'})
     else:
         return jsonify({'result': 'failure'})
-    
-@app.route('/api/list', methods = ['GET'])
-def addProblem():
-    mateList = list(db.users.find({}))
-    imgList = [user['img'] for user in mateList]  # 사용자 이미지만 추출
-    print('이미지 리스트 :', imgList)
-    return render_template('game.html', imgList=imgList)
-
+ 
 if __name__ == '__main__':
     print(sys.executable)
     app.run('0.0.0.0', port=5000, debug=True)
