@@ -53,6 +53,14 @@ def login_page():
 def sign_page():
     return render_template('sign.html')
 
+@app.route('/gameStart')
+def gamestart_page():
+    return render_template('gameStart.html')
+
+@app.route('/game')
+def game_page():
+    return render_template('game.html')
+
 @app.route('/api/sign', methods = ['GET','POST'])
 def sign_up():
     name_receive = request.form.get('give_name')
