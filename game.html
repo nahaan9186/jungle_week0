@@ -1,24 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-    <title>게임 페이지</title>
+{% extends "index.html" %}
+
+{% block game2_script %}
+
 
     <style>
         .problem-img {
-            width: 200px;
-            height: auto;
-            display: none; /* 모든 이미지 숨김 */
+            max-width: none; /* max-width 설정을 해제 */
+            min-width: 100%; /* 최소 너비를 박스의 100%로 설정 */
+            min-height: 100%; /* 최소 높이를 박스의 100%로 설정 */
+            object-fit: cover; /* 이미지가 박스를 완전히 채우도록 설정 */
+            display: none; /* 기본적으로 모든 이미지 숨김, 선택된 이미지만 보여주기 위해 */
         }
         .selected {
             display: block; /* 선택된 이미지만 표시 */
         }
         .indicator-circle {
-            width: 10px;
-            height: 10px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background-color: gray;
             display: inline-block;
@@ -27,6 +25,35 @@
         .indicator-circle.selected {
             background-color: green;
         }
+        #problem-box {
+            width: 400px; /* 너비 고정 */
+            height: 300px; /* 높이 고정 */
+            display: flex;
+            align-items: center; /* 세로 가운데 정렬 */
+            justify-content: center; /* 가로 가운데 정렬 */
+            margin: auto; /* 페이지 중앙에 위치 */
+            background-color: #f0f0f0; /* 배경색, 시각적 확인을 위해 설정 */
+            overflow: hidden; /* 이미지가 박스를 벗어나면 숨김 처리 */
+        }
+        #feedback {
+            font-size: 1.5rem;
+            font-family: sans-serif;
+        }
+        #question {
+            font-size: 1.5rem;
+            font-family: sans-serif;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+        border: 2px solid #cccccc; /* 기본 상태에서의 테두리 색상 */
+        outline: none; /* 기본 테두리 강조(아웃라인) 제거 */
+        padding: 10px; /* 입력 필드 내부 여백 */
+        font-size: 16px; /* 폰트 크기 */
+        }
+
+        input[type="text"]:focus {
+            border-color: #4A90E2; /* 포커스 상태일 때의 테두리 색상 */
+        }    
     </style>
 
     <script>
@@ -121,20 +148,35 @@
             $("#restart").hide(); // 게임 재시작 버튼 숨김
             addProblems(); // 문제 다시 추가
         }
+
+        function goToLogin(){
+            window.location.href = "/";
+        }
+
     </script>
-</head>
-<body>
-    <div>
-        <div id="problem-indicators"></div>
-        <div>이미지와 맞는 이름을 입력하세요.</div> 
-        <div id="problem-box"></div>
-        <div class="form-group">
-            <label for="answer">정답 : </label>
-            <input type="text" id="answer">
-            <button onclick="submitAnswer()">제출</button>
-            <div id="feedback"></div> <!-- 정답 피드백 표시 -->
+{% endblock %}
+
+{% block game2_content %}
+
+    <div class="relative">
+        <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8"></div>
+            <!-- 로그아웃 버튼을 오른쪽 상단에 고정 -->
+            <div class="absolute top-0 right-0 m-4 z-10">
+                <button class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:opacity-100 hover:bg-red-700" onclick="goToLogin()">로그아웃</button>
+            </div>
+            <div class="flex flex-col justify-center items-center space-y-4 mt-10">
+                <div id="problem-indicators"></div>
+                <div id="question" class="mt-10 text-center text-sm text-gray-800">이미지와 맞는 이름을 입력하세요.</div> 
+                <div id="problem-box"></div>
+                <div>
+                    <label class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded" for="answer">정답 :</label>
+                    <input type="text" id="answer">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded" onclick="submitAnswer()">제출</button>
+                </div>
+                <div id="feedback"></div> <!-- 정답 피드백 표시 -->
+                <button id="restart" class="bg-blue-500 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded" onclick="restartGame()" style="display:none;">게임 재시작</button>
+            </div>
         </div>
-        <button id="restart" onclick="restartGame()" style="display:none;">게임 재시작</button>
     </div>
-</body>
-</html>
+
+{% endblock %}
