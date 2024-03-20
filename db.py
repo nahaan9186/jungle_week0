@@ -6,6 +6,7 @@ from flask.json.provider import JSONProvider
 
 import json
 import sys
+import random
 
 
 app = Flask(__name__)
@@ -48,6 +49,15 @@ def home():
 def sign_page():
     return render_template('sign.html')
 
+@app.route('/gameStart.html')
+def gamestrat_page():
+    return render_template('gameStart.html')
+
+@app.route('/game.html')
+def game_page():
+    return render_template('game.html')
+
+
 @app.route('/api/sign', methods = ['GET','POST'])
 def sign_up():
     name_receive = request.form.get('give_name')
@@ -75,7 +85,14 @@ def login():
         return jsonify({'result' : 'success'})
     else:
         return jsonify({'result': 'failure'})
- 
+    
+@app.route('/api/list', methods = ['GET'])
+def addProblem():
+    mateList = list(db.users.find({}))
+    imgList = [user['img'] for user in mateList]  # 사용자 이미지만 추출
+    print('이미지 리스트 :', imgList)
+    return render_template('game.html', imgList=imgList)
+
 if __name__ == '__main__':
     print(sys.executable)
     app.run('0.0.0.0', port=5000, debug=True)
