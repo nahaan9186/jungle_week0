@@ -3,27 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{{url_for('static',filename='css/output.css')}}" rel="stylesheet">
+    
+    <title> {{title}} </title>
+    
+    {% block login_script %}
+    {% endblock %}
+
+    {% block sign_script %}
+    {% endblock %}
+
+    {% block game_script %}
+    {% endblock %}
+
 </head>
 <body>
-    <h2>User Registration</h2>
-    <form id="registrationForm" action="/api/sign" method="POST">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="give_name"><br>
-        
-        <label for="photoUrl">Photo URL:</label><br>
-        <input type="text" id="photoUrl" name="give_img"><br>
-        
-        <label for="userId">ID:</label><br>
-        <input type="text" id="userId" name="give_id"><br>
-        
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="give_password"><br>
-        
-        <!-- Set default score to 0 -->
-        <input type="hidden" name="give_score" value="0">
-        
-        <button type="submit">Sign Up</button>
-    </form>
+
+    {% block login_content %}
+    {% endblock %}
+
+    {% block sign_content %}
+    {% endblock %}
+
+    {% block game_content %}
+    {% endblock %}
+
 </body>
 </html>
