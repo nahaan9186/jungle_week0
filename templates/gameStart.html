@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{{url_for('static',filename='css/output.css')}}" rel="stylesheet">
+
+    <title>게임시작 페이지</title>
+
+    <script>
+        function goToGame(){
+            window.location.href = "/game.html";
+        }
+
+        function goToRank(){
+            alert("미개발 기능입니다!")
+            //window.location.href = "/";
+        }
+
+        $(document).ready(function() {
+        // 서버로부터 받은 user_id 값을 JavaScript 변수로 변환
+        var userId = {{ user_id|tojson }};
+        
+        // 로그아웃 버튼 클릭 이벤트
+        $('#logoutButton').click(function() {
+            $.get('/logout', function() {
+                alert('로그아웃 되었습니다.');
+                window.location.href = '/'; // 로그아웃 후 리다이렉트될 페이지
+            });
+        });
+
+        // 로그인 상태 확인
+        if (!userId) {
+            alert('로그인 정보가 없습니다.');
+            window.location.href = '/'; // 로그인 정보가 없을 경우 리다이렉트될 페이지
+        }
+    });
+    </script>
+
+</head>
+<body class="relative">
+    {% if user_id %}
+        <p>사용자 ID: {{ user_id }}</p>
+        <p>점수: {{ score }}</p>
+    {% else %}
+        <p>로그인 정보가 없습니다.</p>
+    {% endif %}
+    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+        <!-- 로그아웃 버튼을 오른쪽 상단에 고정 -->
+        <div class="absolute top-0 right-0 m-4 z-10">
+            <button class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:opacity-100 hover:bg-red-700" onclick="goToLogin()">로그아웃</button>
+        </div>
+        <div> 
+            <img class="mx-auto h-30 w-auto" src="https://i.ytimg.com/vi/eJmGaWbLvdI/maxresdefault.jpg" alt="Your Company">
+        </div>
+        <!-- 게임 시작 및 랭킹 보기 버튼을 중앙에 배치 -->
+        <div class="flex flex-col justify-center items-center space-y-4 mt-10">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-8 px-16 rounded" onclick="goToGame()">
+                게임 시작
+            </button>
+            <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-8 px-16 rounded" onclick="goToRank()">
+                랭킹 보기
+            </button>
+        </div>
+    </div>
+</body>
+</html>
