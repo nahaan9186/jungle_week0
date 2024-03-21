@@ -9,6 +9,11 @@
     <title>{{title}}</title>
     <script>
         const maxScore = 10;
+
+        $(document).ready(function () {
+            showScore();
+        })
+
         function showScore(){
             $.ajax({
                 type: "GET",
@@ -19,19 +24,31 @@
                         score_list = response['score_list'];
                         for (let i = 0; i < score_list.length; i++){
                             let score = score_list[i];
-                            $('#ranking-box').append('<div>' + score + '</div>');
+                            // $('#ranking-box').append('<div>' + score + '</div>');
                         }
                     }
                 }
             })
         }
+
     </script>
 </head>
 <body>
-    <h1 id = ''>얼굴 맞추기 랭킹</h1>
+    <h1>얼굴 맞추기 랭킹</h1>
     <br>
-    <div id = 'ranking-box'>
-
+    <div id="ranking-box">
+        <table>
+            <tr>
+                <th>이름</th>
+                <th>점수</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.score }}</td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 </body>
 </html>

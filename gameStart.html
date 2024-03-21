@@ -17,12 +17,21 @@
         }
 
         function goToRank(){
-            alert("미개발 기능입니다!")
-            //window.location.href = "/";
+            window.location.href = "/ranking.html";
         }
 
-        function goToLogin(){
-            window.location.href = "/";
+        function logOut(){
+            $.ajax({
+                type: "GET",
+                url: "/logout",
+                data: {},
+                success: function (response){
+                    if (response['result'] == 'success'){
+                        alert('로그아웃 합니다.')
+                        window.location.href = "/";
+                    }
+                } 
+            })
         }
     </script>
 
@@ -31,7 +40,7 @@
     <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <!-- 로그아웃 버튼을 오른쪽 상단에 고정 -->
         <div class="absolute top-0 right-0 m-4 z-10">
-            <button class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:opacity-100 hover:bg-red-700" onclick="goToLogin()">로그아웃</button>
+            <button class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:opacity-100 hover:bg-red-700" onclick="logOut()">로그아웃</button>
         </div>
         <div> 
             <img class="mx-auto h-30 w-auto" src="https://i.ytimg.com/vi/eJmGaWbLvdI/maxresdefault.jpg" alt="Your Company">

@@ -59,7 +59,8 @@
     <script>
         let mateList;
         let tenMateList = [];
-        let count = 0;
+        let score = 0;
+        let name;
         let currentProblemIndex = 0; // 현재 문제의 인덱스
 
         $(document).ready(function () {
@@ -81,6 +82,7 @@
                     if (response['result'] == 'success') {
                         mateList = response['mateList']; // DB에서 전체 리스트를 받아온다
                         let randomInt = generateRandomIndexes(10, mateList.length);
+                        name = mateList
 
                         for (let i of randomInt){
                             tenMateList.push(mateList[i]);
@@ -115,7 +117,7 @@
             let correctAnswer = tenMateList[currentProblemIndex]['name'];
 
             if (answer.toLowerCase() === correctAnswer.toLowerCase()) {
-                count += 1;
+                score += 1;
                 $("#feedback").text("정답입니다!");
             } else {
                 $("#feedback").text("오답입니다!");
@@ -131,15 +133,26 @@
                 $("#answer").val("").focus(); // 정답 입력란 초기화 및 포커스 설정
             } else {
                 // 모든 문제를 다 푼 경우 게임 종료
+                $.ajax({
+                    type: "POST",
+                    url: "/api/rank",
+                    data: {give_score : score},
+                    success: function (response){
+                        if (response['result'] == 'success'){
+                            return
+                        }
+                    }
+                })
                 $("#answer").prop('disabled', true); // 정답 입력란 비활성화
-                $("#feedback").text("게임 종료! 당신의 점수는 " + count + "점 입니다.");
+                $("#feedback").text("게임 종료! 당신의 점수는 " + score + "점 입니다.");
                 $("#restart").show(); // 게임 재시작 버튼 표시
+                $("#returnPage").show(); //게임 시작페이지로 돌아가기 버튼 표시
             }
         }
 
         function restartGame() {
             tenMateList = []; // 게임을 재시작하기 위해 변수 초기화
-            count = 0;
+            score = 0;
             currentProblemIndex = 0;
             $("#problem-box").empty(); // 문제 이미지 및 표시기 제거
             $("#problem-indicators").empty();
@@ -149,9 +162,25 @@
             addProblems(); // 문제 다시 추가
         }
 
-        function goToLogin(){
-            window.location.href = "/";
+        function logOut(){
+            $.ajax({
+                type: "GET",
+                url: "/logout", // Flask 백엔드의 로그아웃 엔드포인트
+                data: {},
+                success: function (response){
+                    if (response['result'] == 'success'){
+                        // 로그아웃 성공 시 로그인 페이지로 리디렉션
+                        alert('로그아웃!')
+                        window.location.href = "/";
+                    }
+                } 
+            })
         }
+
+        function returnPage(){
+            window.location.href = "/gameStart.html";
+        }
+
 
     </script>
 {% endblock %}
@@ -162,7 +191,7 @@
         <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8"></div>
             <!-- 로그아웃 버튼을 오른쪽 상단에 고정 -->
             <div class="absolute top-0 right-0 m-4 z-10">
-                <button class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:opacity-100 hover:bg-red-700" onclick="goToLogin()">로그아웃</button>
+                <button class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:opacity-100 hover:bg-red-700" onclick="logOut()">로그아웃</button>
             </div>
             <div class="flex flex-col justify-center items-center space-y-4 mt-10">
                 <div id="problem-indicators"></div>
@@ -175,6 +204,8 @@
                 </div>
                 <div id="feedback"></div> <!-- 정답 피드백 표시 -->
                 <button id="restart" class="bg-blue-500 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded" onclick="restartGame()" style="display:none;">게임 재시작</button>
+                <button id="returnPage" class="bg-blue-500 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded" onclick="returnPage()" style="display:none;">시작페이지로!</button>
+
             </div>
         </div>
     </div>
