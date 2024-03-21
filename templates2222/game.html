@@ -1,0 +1,215 @@
+{% extends "index.html" %}
+
+
+{% block game2_script %}
+
+    <style>
+        .problem-img {
+            max-width: none; /* max-width 설정을 해제 */
+            min-width: 100%; /* 최소 너비를 박스의 100%로 설정 */
+            min-height: 100%; /* 최소 높이를 박스의 100%로 설정 */
+            object-fit: cover; /* 이미지가 박스를 완전히 채우도록 설정 */
+            display: none; /* 기본적으로 모든 이미지 숨김, 선택된 이미지만 보여주기 위해 */
+        }
+        .selected {
+            display: block; /* 선택된 이미지만 표시 */
+        }
+        .indicator-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: gray;
+            display: inline-block;
+            margin: 0 5px;
+        }
+        .indicator-circle.selected {
+            background-color: green;
+        }
+        #problem-box {
+            width: 400px; /* 너비 고정 */
+            height: 300px; /* 높이 고정 */
+            display: flex;
+            align-items: center; /* 세로 가운데 정렬 */
+            justify-content: center; /* 가로 가운데 정렬 */
+            margin: auto; /* 페이지 중앙에 위치 */
+            background-color: #f0f0f0; /* 배경색, 시각적 확인을 위해 설정 */
+            overflow: hidden; /* 이미지가 박스를 벗어나면 숨김 처리 */
+        }
+        #feedback {
+            font-size: 1.5rem;
+            font-family: sans-serif;
+        }
+        #question {
+            font-size: 1.5rem;
+            font-family: sans-serif;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+        border: 2px solid #cccccc; /* 기본 상태에서의 테두리 색상 */
+        outline: none; /* 기본 테두리 강조(아웃라인) 제거 */
+        padding: 10px; /* 입력 필드 내부 여백 */
+        font-size: 16px; /* 폰트 크기 */
+        }
+
+        input[type="text"]:focus {
+            border-color: #4A90E2; /* 포커스 상태일 때의 테두리 색상 */
+        }    
+    </style>
+
+    <script>
+        let mateList;
+        let tenMateList = [];
+        let count = 0;
+        let currentProblemIndex = 0; // 현재 문제의 인덱스
+
+        $(document).ready(function () {
+            addProblems();  // 게임 페이지 시작
+            $("#answer").focus(); // 정답 입력란에 포커스 설정
+            $("#answer").keypress(function(event) { // 엔터키 눌렀을 때 제출
+                if (event.which === 13) { // 13은 엔터키의 키코드
+                    submitAnswer();
+                }
+            });
+        });
+
+        function addProblems() {
+            $.ajax({
+                type: "GET",
+                url: "/api/list",
+                data: {},
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        mateList = response['mateList']; // DB에서 전체 리스트를 받아온다
+                        let randomInt = generateRandomIndexes(10, mateList.length);
+
+                        for (let i of randomInt){
+                            tenMateList.push(mateList[i]);
+                        }
+
+                        // 문제 이미지와 표시기 추가
+                        for (let i = 0; i < tenMateList.length; i++){
+                            $('#problem-box').append('<img src="' + tenMateList[i]['img'] + '" alt="" class="problem-img">');
+                            $('#problem-indicators').append('<div class="indicator-circle"></div>');
+                        }
+                        
+                        $(".problem-img").eq(0).addClass("selected"); 
+                        $(".indicator-circle").eq(0).addClass("selected"); 
+                    }
+                }
+            });
+        }
+
+        function generateRandomIndexes(n, max) {
+            let indexes = [];
+            while (indexes.length < n) {
+                let randomIndex = Math.floor(Math.random() * max);
+                if (!indexes.includes(randomIndex)) {
+                    indexes.push(randomIndex);
+                }
+            }
+            return indexes;
+        }
+
+        function submitAnswer() {
+            let answer = $("#answer").val().trim(); // 입력값 공백 제거
+            let correctAnswer = tenMateList[currentProblemIndex]['name'];
+
+            if (answer.toLowerCase() === correctAnswer.toLowerCase()) {
+                count += 1;
+                $("#feedback").text("정답입니다!");
+            } else {
+                $("#feedback").text("오답입니다!");
+            }
+
+            currentProblemIndex++;
+            if (currentProblemIndex < tenMateList.length) {
+                // 다음 문제로 이동
+                $(".problem-img").removeClass("selected");
+                $(".indicator-circle").removeClass("selected");
+                $(".problem-img").eq(currentProblemIndex).addClass("selected");
+                $(".indicator-circle").eq(currentProblemIndex).addClass("selected");
+                $("#answer").val("").focus(); // 정답 입력란 초기화 및 포커스 설정
+            } else {
+                // 모든 문제를 다 푼 경우 게임 종료
+                $.ajax({
+                    type: "POST",
+                    url: "/api/rank",
+                    data: {give_score : score},
+                    success: function (response){
+                        if (response['result'] == 'success'){
+                            return
+                        }
+                    }
+                })
+                $("#answer").prop('disabled', true); // 정답 입력란 비활성화
+                $("#feedback").text("게임 종료! 당신의 점수는 " + score + "점 입니다.");
+                $("#restart").show(); // 게임 재시작 버튼 표시
+                $("#returnPage").show(); //게임 시작페이지로 돌아가기 버튼 표시
+            }
+        }
+
+        function restartGame() {
+            tenMateList = []; // 게임을 재시작하기 위해 변수 초기화
+            count = 0;
+            currentProblemIndex = 0;
+            $("#problem-box").empty(); // 문제 이미지 및 표시기 제거
+            $("#problem-indicators").empty();
+            $("#feedback").text(""); // 피드백 메시지 초기화
+            $("#answer").prop('disabled', false).val("").focus(); // 정답 입력란 초기화 및 활성화
+            $("#restart").hide(); // 게임 재시작 버튼 숨김
+            addProblems(); // 문제 다시 추가
+        }
+
+        $(document).ready(function() {
+        // 서버로부터 받은 user_id 값을 JavaScript 변수로 변환
+        var userId = {{ user_id|tojson }};
+        
+        // 로그아웃 버튼 클릭 이벤트
+        $('#logoutButton').click(function() {
+            $.get('/logout', function() {
+                alert('로그아웃 되었습니다.');
+                window.location.href = '/'; // 로그아웃 후 리다이렉트될 페이지
+            });
+        });
+
+        // 로그인 상태 확인
+        if (!userId) {
+            alert('로그인 정보가 없습니다.');
+            window.location.href = '/'; // 로그인 정보가 없을 경우 리다이렉트될 페이지
+        }
+    });
+
+    </script>
+{% endblock %}
+
+{% block game2_content %}
+
+    <div class="relative">
+        
+        {% if user_id %}
+            <p>사용자 ID: {{ user_id }}</p>
+            <p>점수: {{ score }}</p>
+        {% else %}
+            <p>로그인 정보가 없습니다.</p>
+        {% endif %}
+        <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8"></div>
+            <!-- 로그아웃 버튼을 오른쪽 상단에 고정 -->
+            <div class="absolute top-0 right-0 m-4 z-10">
+                <button class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:opacity-100 hover:bg-red-700" id="logoutButton">로그아웃</button>
+            </div>
+            <div class="flex flex-col justify-center items-center space-y-4 mt-10">
+                <div id="problem-indicators"></div>
+                <div id="question" class="mt-10 text-center text-sm text-gray-800">이미지와 맞는 이름을 입력하세요.</div> 
+                <div id="problem-box"></div>
+                <div>
+                    <label class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded" for="answer">정답 :</label>
+                    <input type="text" id="answer">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded" onclick="submitAnswer()">제출</button>
+                </div>
+                <div id="feedback"></div> <!-- 정답 피드백 표시 -->
+                <button id="restart" class="bg-blue-500 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded" onclick="restartGame()" style="display:none;">게임 재시작</button>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

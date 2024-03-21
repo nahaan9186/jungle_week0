@@ -1,0 +1,82 @@
+{% extends "index.html" %}
+
+{% block login_script %}
+
+{% if message %}
+<script type="text/javascript">
+    alert("{{ message }}");
+</script>
+{% endif %}
+
+<script>
+    function login(event) {
+        event.preventDefault(); // 폼의 기본 제출 동작을 방지
+        let userId = $("#post-userid").val();
+        let password = $("#post-password").val();
+
+        $.ajax({
+            type: "POST",
+            url: "/login.html",
+            data:{give_id : userId, give_password : password},
+            success : function (response){
+                if (response['result'] == 'success') {
+                    alert('로그인 성공!');
+                    window.location.href = "/gameStart.html";
+                }
+                else{
+                    alert('ID와 PW를 확인해주십시오')
+                    window.location.reload();
+                }
+            }
+        })
+    }
+
+    function goToSign(){
+
+        // 로그인 창에서 회원가입 창으로 이동합니다.
+        alert("회원가입 페이지로 이동합니다.")
+        window.location.href = "/sign.html";
+    }
+</script>
+{% endblock %}
+
+{% block login_content %}
+    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+          <img class="mx-auto h-30 w-auto" src="https://i.ytimg.com/vi/eJmGaWbLvdI/maxresdefault.jpg" alt="Your Company">
+          <h3 class="font-bold text-center text-gray-900">크래프톤 정글에 서식중인 정글러의 이름을 맞춰보자!</h3>
+          <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">로 그 인</h2>
+        </div>
+        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          <form class="space-y-6" onsubmit="login(event); return false;"></form>
+            <div>
+              <label for="post-userid" class="block text-sm font-medium leading-6 text-gray-900">아 이 디</label>
+              <div class="mt-2">
+                <input id="post-userid" name="post-userid" type="text" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              </div>
+            </div>
+      
+            <div>
+              <div class="flex items-center justify-between">
+                <label for="post-password" class="block text-sm font-medium leading-6 text-gray-900">비 밀 번 호</label>
+                <div class="text-sm">
+                  <!--<a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a>-->
+                </div>
+              </div>
+              <div class="mt-2">
+                <input id="post-password" name="post-password" type="password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              </div>
+            </div>
+            <br>
+            <div>
+              <button class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" onclick="login(event)">로 그 인</button>
+            </div>
+          </form>
+      
+          <p class="mt-10 text-center text-sm text-gray-500">
+            계정이 없으신가요?
+            <button class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500" onclick="goToSign()">회 원 가 입</button>
+          </p>
+        </div>
+    </div>
+{% endblock %}
