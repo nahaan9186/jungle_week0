@@ -12,23 +12,23 @@
 
         $(document).ready(function () {
             showScore();
-        })
+        });
 
-        function showScore(){
+        function showScore() {
             $.ajax({
                 type: "GET",
-                url:"/api/ranking",
+                url: "/api/ranking",
                 data: {},
-                success :function (response){
+                success: function (response) {
                     if (response['result'] == 'success') {
-                        score_list = response['score_list'];
-                        for (let i = 0; i < score_list.length; i++){
-                            let score = score_list[i];
-                            // $('#ranking-box').append('<div>' + score + '</div>');
+                        let scoreList = response['score_list'];
+                        for (let i = 0; i < scoreList.length; i++) {
+                            let user = scoreList[i];
+                            $('#ranking-box').append('<div>' + user.name + ': ' + user.score + '</div>');
                         }
                     }
                 }
-            })
+            });
         }
 
     </script>
@@ -42,12 +42,6 @@
                 <th>이름</th>
                 <th>점수</th>
             </tr>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.name }}</td>
-                <td>{{ user.score }}</td>
-            </tr>
-            {% endfor %}
         </table>
     </div>
 </body>

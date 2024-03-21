@@ -154,17 +154,20 @@ def addScore():
     else:
         return jsonify({'result': 'failure', 'message': '유저 정보를 찾을 수 없습니다.'})
 
-@app.route('/api/ranking')
+    
+@app.route('/api/ranking', methods=['GET'])
 def show_score():
-    score = list(db.users.find({}))
-    return jsonify({'result' : 'success', 'score_list' : score})
-
-# @app.route('/ranking.html')
-# def rank_page():
-#     # 유저 정보를 가져와서 점수순으로 정렬
-#     users = db.users.find().sort([('score', -1)])
-#     # 랭킹 페이지 렌더링
-#     return render_template('ranking.html', users=users)
+    # 사용자 정보를 가져와서 점수순으로 정렬
+    users = list(db.users.find().sort([('score', -1)]))
+    # 필요한 정보만 추출하여 리스트에 저장
+    score_list = []
+    for user in users:
+        if 'score' in user:
+            score_list.append({'name': user['name'], 'score': user['score']})
+        else:
+            # score 필드가 없는 경우에 대한 처리
+            score_list.append({'name': user['name'], 'score': 0})  # 또는 다른 기본값 설정
+    return jsonify({'result': 'success', 'score_list': score_list})  
  
 if __name__ == '__main__':
     print(sys.executable)

@@ -9,7 +9,7 @@
 
         $.ajax({
             type: "POST",
-            url: "/login.html",
+            url: "/api/login",
             data:{give_id : userId, give_password : password},
             success : function (response){
                 if (response['result'] == 'success') {
@@ -24,6 +24,8 @@
         })
     }
 
+
+
     function goToSign(){
 
         // 로그인 창에서 회원가입 창으로 이동합니다.
@@ -32,6 +34,8 @@
     }
 </script>
 {% endblock %}
+
+
 
 {% block login_content %}
     <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
