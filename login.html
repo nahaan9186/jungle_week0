@@ -9,7 +9,7 @@
 
         $.ajax({
             type: "POST",
-            url: "/api/login",
+            url: "/login.html",
             data:{give_id : userId, give_password : password},
             success : function (response){
                 if (response['result'] == 'success') {

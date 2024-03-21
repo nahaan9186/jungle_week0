@@ -10,8 +10,6 @@ import sys
 import jwt
 import datetime
 
-import random
-
 
 app = Flask(__name__)
 
@@ -70,16 +68,36 @@ def gameStart_page():
     title = '게임 페이지'
     return render_template('gameStart.html', title=title)
 
+# 랭킹 페이지 화면 랜더링
+@app.route('/ranking.html')
+def ranking_page():
+    title = '랭킹 페이지'
+    return render_template('ranking.html', title=title)
+
+# 랭킹 API 역할을 하는 부분
+@app.route('/api/ranking', methods = ['POST'])
+def ranking():
+    score_receive = request.form.get('give_score')
+    
+    db.users.update_one({'score': score_receive})
+    
+    return jsonify({'result': 'success'})
+
+# 랭킹 API 역할을 하는 부분
+@app.route('/api/ranking', methods = ['GET'])
+def show_score():
+    score = list(db.users.find({}, {'_id':False}, {'password':False}, {'id':False}.sort('score',-1)))
+    return jsonify({'result': 'success', 'score_list':score})
+    
+
+# 회원가입 화면 보여주기
 @app.route('/sign.html')
 def sign_page():
     title = '회원가입 페이지'
     return render_template('sign.html', title=title)
 
-@app.route('/ranking.html')
-def rank_page():
-    return render_template('ranking.html')
-
-@app.route('/api/sign', methods = ['GET','POST'])
+# 회원가입 API 역할을 하는 부분
+@app.route('/api/sign', methods = ['POST'])
 def sign_up():
     name_receive = request.form.get('give_name')
     img_receive = request.form.get('give_img')
@@ -112,7 +130,7 @@ def sign_up():
     # return jsonify({'result': 'success'})
     
 
-@app.route('/api/login', methods = ['GET','POST'])
+@app.route('/login.html', methods = ['GET','POST'])
 def login():
     login_id = request.form.get('give_id')
     login_password = request.form.get('give_password')
@@ -128,11 +146,6 @@ def login():
 def addProblem():
     mateList = list(db.users.find({}))
     return jsonify({'result' : 'success', 'mateList' : mateList})
-
-@app.route('/api/ranking')
-def show_score():
-    score = list(db.users.find({}))
-    return jsonify({'result' : 'success', 'score_list' : score})
  
 if __name__ == '__main__':
     print(sys.executable)
